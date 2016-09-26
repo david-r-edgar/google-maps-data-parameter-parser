@@ -1,5 +1,5 @@
 
-
+//generic tree implementation
 var Node = function(value) {
 
     this.value = value;
@@ -8,6 +8,7 @@ var Node = function(value) {
 
     this.setParentNode = function(node) {
         this.parent = node;
+        //FIXME this should also add the reverse (child) link to the parent node
     }
 
     this.getParentNode = function() {
@@ -75,11 +76,8 @@ var parse = function(urlToParse) {
     if (dataArray && dataArray.length >= 1) {
         //console.log(dataArray[1]);
         var elemArray = dataArray[1].split("!");
-        $("#parseResult").text(elemArray);
-        //now iterate through elements, placing them at appropriate location in tree
 
         var workingNode = null;
-
         //we iterate through each of the elements, creating a node for it, and
         //deciding where to place it in the tree
         for (var i=0; i < elemArray.length; i++) {
@@ -104,11 +102,22 @@ var parse = function(urlToParse) {
                 }
             }
         }
-        console.log(root);
     }
-
+    return root;
 }
 
+
+var showTree = function(node, level=0) {
+
+    var inset = level * 35;
+    $("#parseResult").append("<div style=\"padding-left: " + inset + "px\">" + node.value.id + " " + node.value.type + " " + node.value.val + "</div>");
+
+    //iterate through children of elements
+    for (child of node.getChildren()) {
+        //recursively display other elements
+        showTree(child, level+1);
+    }
+}
 
 
 
@@ -117,9 +126,9 @@ $(document).ready(function() {
     var inputURL = $("#inputURL").bind("input", function() {
 
         var urlToParse = this.value;
-        setTimeout(parse(urlToParse), 500);
+        setTimeout(showTree(parse(urlToParse)), 500);
 
     });
 
-    parse($("#inputURL")[0].value);
+    showTree(parse($("#inputURL")[0].value));
 });
