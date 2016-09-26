@@ -71,10 +71,10 @@ PrBufNode.prototype.findLatestIncompleteNode = function() {
 //parses the input URL 'data' protocol buffer parameter into a tree
 var parse = function(urlToParse) {
     var root = null;
-    var re = /data=!(.*)\?/
+    var re = /data=!([^?&]+)/
     var dataArray = urlToParse.match(re);
     if (dataArray && dataArray.length >= 1) {
-        //console.log(dataArray[1]);
+        console.log(dataArray);
         var elemArray = dataArray[1].split("!");
 
         var workingNode = null;
@@ -108,6 +108,9 @@ var parse = function(urlToParse) {
 
 
 var showTree = function(node, level=0) {
+    if (0 === level) {
+        $("#parseResult").html("");
+    }
 
     var inset = level * 35;
     $("#parseResult").append("<div style=\"padding-left: " + inset + "px\">" + node.value.id + " " + node.value.type + " " + node.value.val + "</div>");
@@ -118,8 +121,6 @@ var showTree = function(node, level=0) {
         showTree(child, level+1);
     }
 }
-
-
 
 
 $(document).ready(function() {
