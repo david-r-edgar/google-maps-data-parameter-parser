@@ -1,4 +1,5 @@
 
+
 //generic tree implementation
 var Node = function(value) {
 
@@ -8,7 +9,7 @@ var Node = function(value) {
 
     this.setParentNode = function(node) {
         this.parent = node;
-        //FIXME this should also add the reverse (child) link to the parent node
+        node.children[node.children.length] = this;
     }
 
     this.getParentNode = function() {
@@ -16,7 +17,7 @@ var Node = function(value) {
     }
 
     this.addChild = function(node) {
-        node.setParentNode(this);
+        node.parent = this;
         this.children[this.children.length] = node;
     }
 
@@ -25,6 +26,9 @@ var Node = function(value) {
     }
 
     this.removeChildren = function() {
+        for (child of this.children) {
+            child.parent = null;
+        }
         this.children = [];
     }
 
@@ -37,7 +41,8 @@ var Node = function(value) {
     }
 }
 
-
+//Protocol Buffer implementation, which extends the functionality of Node
+//while specifically typing the stored value
 var PrBufNode = function(id, type, val) {
     this.value = {id, type, val}
     this.children = [];
@@ -63,10 +68,8 @@ PrBufNode.prototype.findLatestIncompleteNode = function() {
     }
 }
 
-
-
 //parses the input URL 'data' protocol buffer parameter into a tree
-var parse = function(urlToParse) {
+PrBufNode.create = function(urlToParse) {
     var rootNode = null;
     var re = /data=!([^?&]+)/
     var dataArray = urlToParse.match(re);
@@ -88,5 +91,4 @@ var parse = function(urlToParse) {
     }
     return rootNode;
 }
-
 

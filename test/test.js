@@ -21,9 +21,9 @@ $(document).ready(function() {
     var inputURL = $("#inputURL").bind("input", function() {
 
         var urlToParse = this.value;
-        setTimeout(showTree(parse(urlToParse)), 500);
+        setTimeout(showTree(PrBufNode.create(urlToParse)), 500);
 
     });
 
-    showTree(parse($("#inputURL")[0].value));
+    showTree(PrBufNode.create($("#inputURL")[0].value));
 });
