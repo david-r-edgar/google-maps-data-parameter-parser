@@ -35,8 +35,8 @@ var parsedProtocolBuffer = PrBufNode.create(url);
 ### Traversal
 ```
 for (directChild of parsedProtocolBuffer.getChildren()) {
-    console.log(directChild.value.id,
-                directChild.value.type,
-                directChild.value.val);
+    console.log(directChild.id(),
+                directChild.type(),
+                directChild.value());
 }
 ```

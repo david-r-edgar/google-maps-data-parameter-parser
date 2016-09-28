@@ -1,9 +1,9 @@
 
 
 //generic tree implementation
-var Node = function(value) {
+var Node = function(val) {
 
-    this.value = value;
+    this.val = val;
     this.children = [];
     this.parent = null;
 
@@ -43,14 +43,18 @@ var Node = function(value) {
 
 //Protocol Buffer implementation, which extends the functionality of Node
 //while specifically typing the stored value
-var PrBufNode = function(id, type, val) {
-    this.value = {id, type, val}
+var PrBufNode = function(id, type, value) {
+    this.val = {id, type, value}
     this.children = [];
     this.parent = null;
 }
 
 PrBufNode.prototype = new Node();
 PrBufNode.prototype.constructor = PrBufNode;
+
+PrBufNode.prototype.id = function() { return this.val.id; }
+PrBufNode.prototype.type = function() { return this.val.type; }
+PrBufNode.prototype.value = function() { return this.val.value; }
 
 //Compares the number of descendants with the value specified in the map element.
 //If all the children have not yet been added, we continue adding to this element.
@@ -59,7 +63,7 @@ PrBufNode.prototype.findLatestIncompleteNode = function() {
     //if it's a branch (map) node ('m') and has room,
     //or if it's the root (identified by having a null parent), which has no element limit,
     //then return this node
-    if (((this.value.type === 'm') && (this.value.val > this.getTotalDescendantCount()))
+    if (((this.val.type === 'm') && (this.val.value > this.getTotalDescendantCount()))
         || (null === this.parent)) {
         return this;
     }
