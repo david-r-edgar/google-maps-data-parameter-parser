@@ -74,37 +74,26 @@ PrBufNode.prototype.findLatestIncompleteNode = function() {
 
 //parses the input URL 'data' protocol buffer parameter into a tree
 var parse = function(urlToParse) {
-    var root = null;
+    var rootNode = null;
     var re = /data=!([^?&]+)/
     var dataArray = urlToParse.match(re);
     if (dataArray && dataArray.length >= 1) {
-        console.log(dataArray);
-        var elemArray = dataArray[1].split("!");
-
-        var rootNode = new PrBufNode();
+        rootNode = new PrBufNode();
         var workingNode = rootNode;
         //we iterate through each of the elements, creating a node for it, and
         //deciding where to place it in the tree
+        var elemArray = dataArray[1].split("!");
         for (var i=0; i < elemArray.length; i++) {
             var elemRe = /^([0-9])([a-z])(.*)$/
-            var elementCompositionArray = elemArray[i].match(elemRe);
-            if (elementCompositionArray && elementCompositionArray.length > 3) {
-                //console.log(elementCompositionArray);
-                var id = elementCompositionArray[1];
-                var type = elementCompositionArray[2];
-                var value = elementCompositionArray[3];
-                var elemNode = new PrBufNode(id, type, value);
-                //if (!root) {
-                //    root = elemNode;
-                //    workingNode = root;
-                //} else {
-                    workingNode.addChild(elemNode);
-                    workingNode = elemNode.findLatestIncompleteNode();
-                    if (null == workingNode) {
-                        //we've filled up the branches right back to the root, so nothing more we can add
-                        break;
-                    }
-                //}
+            var elemValsArray = elemArray[i].match(elemRe);
+            if (elemValsArray && elemValsArray.length > 3) {
+                var elemNode = new PrBufNode(elemValsArray[1], elemValsArray[2], elemValsArray[3]);
+                workingNode.addChild(elemNode);
+                workingNode = elemNode.findLatestIncompleteNode();
+                if (null == workingNode) {
+                    //we've filled up the branches right back to the root, so nothing more we can add
+                    break;
+                }
             }
         }
     }
