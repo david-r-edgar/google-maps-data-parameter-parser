@@ -42,9 +42,6 @@ var PrBufNode = function(id, type, val) {
     this.value = {id, type, val}
     this.children = [];
     this.parent = null;
-    if (undefined === id) {
-        this.root = true;
-    }
 }
 
 PrBufNode.prototype = new Node();
@@ -54,19 +51,15 @@ PrBufNode.prototype.constructor = PrBufNode;
 //If all the children have not yet been added, we continue adding to this element.
 PrBufNode.prototype.findLatestIncompleteNode = function() {
 
-    //if it's a branch (map) node ('m') and has room, or if it's the root, return this node
+    //if it's a branch (map) node ('m') and has room,
+    //or if it's the root (identified by having a null parent), which has no element limit,
+    //then return this node
     if (((this.value.type === 'm') && (this.value.val > this.getTotalDescendantCount()))
-        || (this.root)) {
+        || (null === this.parent)) {
         return this;
     }
     else {
-        //if we've reached the root, return null
-        if (this.parent === null) {
-            return null;
-        } else {
-            //otherwise recurse up the tree
-            return this.parent.findLatestIncompleteNode();
-        }
+        return this.parent.findLatestIncompleteNode();
     }
 }
 
@@ -90,10 +83,6 @@ var parse = function(urlToParse) {
                 var elemNode = new PrBufNode(elemValsArray[1], elemValsArray[2], elemValsArray[3]);
                 workingNode.addChild(elemNode);
                 workingNode = elemNode.findLatestIncompleteNode();
-                if (null == workingNode) {
-                    //we've filled up the branches right back to the root, so nothing more we can add
-                    break;
-                }
             }
         }
     }
