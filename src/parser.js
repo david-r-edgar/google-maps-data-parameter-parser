@@ -42,6 +42,9 @@ var PrBufNode = function(id, type, val) {
     this.value = {id, type, val}
     this.children = [];
     this.parent = null;
+    if (undefined === id) {
+        this.root = true;
+    }
 }
 
 PrBufNode.prototype = new Node();
@@ -51,8 +54,9 @@ PrBufNode.prototype.constructor = PrBufNode;
 //If all the children have not yet been added, we continue adding to this element.
 PrBufNode.prototype.findLatestIncompleteNode = function() {
 
-    //if it's a branch (map) node ('m') and has room, return this node
-    if ((this.value.type === 'm') && (this.value.val > this.getTotalDescendantCount())) {
+    //if it's a branch (map) node ('m') and has room, or if it's the root, return this node
+    if (((this.value.type === 'm') && (this.value.val > this.getTotalDescendantCount()))
+        || (this.root)) {
         return this;
     }
     else {
@@ -77,7 +81,8 @@ var parse = function(urlToParse) {
         console.log(dataArray);
         var elemArray = dataArray[1].split("!");
 
-        var workingNode = null;
+        var rootNode = new PrBufNode();
+        var workingNode = rootNode;
         //we iterate through each of the elements, creating a node for it, and
         //deciding where to place it in the tree
         for (var i=0; i < elemArray.length; i++) {
@@ -89,21 +94,21 @@ var parse = function(urlToParse) {
                 var type = elementCompositionArray[2];
                 var value = elementCompositionArray[3];
                 var elemNode = new PrBufNode(id, type, value);
-                if (!root) {
-                    root = elemNode;
-                    workingNode = root;
-                } else {
+                //if (!root) {
+                //    root = elemNode;
+                //    workingNode = root;
+                //} else {
                     workingNode.addChild(elemNode);
                     workingNode = elemNode.findLatestIncompleteNode();
                     if (null == workingNode) {
                         //we've filled up the branches right back to the root, so nothing more we can add
                         break;
                     }
-                }
+                //}
             }
         }
     }
-    return root;
+    return rootNode;
 }
 
 

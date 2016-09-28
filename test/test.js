@@ -4,8 +4,10 @@ var showTree = function(node, level=0) {
         $("#parseResult").html("");
     }
 
-    var inset = level * 35;
-    $("#parseResult").append("<div style=\"padding-left: " + inset + "px\">" + node.value.id + " " + node.value.type + " " + node.value.val + "</div>");
+    if (!node.root) {
+        var inset = level * 35;
+        $("#parseResult").append("<div style=\"padding-left: " + inset + "px\">" + node.value.id + " " + node.value.type + " " + node.value.val + "</div>");
+    }
 
     //iterate through children of elements
     for (child of node.getChildren()) {
