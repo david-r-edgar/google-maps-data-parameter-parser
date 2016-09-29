@@ -84,7 +84,7 @@ PrBufNode.create = function(urlToParse) {
         //deciding where to place it in the tree
         var elemArray = dataArray[1].split("!");
         for (var i=0; i < elemArray.length; i++) {
-            var elemRe = /^([0-9])([a-z])(.*)$/
+            var elemRe = /^([0-9]+)([a-z])(.+)$/
             var elemValsArray = elemArray[i].match(elemRe);
             if (elemValsArray && elemValsArray.length > 3) {
                 var elemNode = new PrBufNode(elemValsArray[1], elemValsArray[2], elemValsArray[3]);
