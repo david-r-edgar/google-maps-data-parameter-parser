@@ -169,36 +169,34 @@ GmdpRoute.prototype.getTransportation = function() {
 var Gmdp = function(url) {
     this.prBufRoot = PrBufNode.create(url);
 
-    //first node, expected to be 4m
-    //FIXME search for a 4m among all top-level nodes
-    var top = this.prBufRoot.getChildren()[0];
-    if ((top.val.id != 4) || (top.val.type != 'm')) {
-        console.log("unexpected node", top.val.id, top.val.type, top.val.value);
-        throw("unexpected input");
-    }
-
-    var directions = top.getChildren()[0];
-    //FIXME search for a 4m among all second-level nodes
-    if ((top.val.id != 4) || (top.val.type != 'm')) {
-        console.log("unexpected node", top.val.id, top.val.type, top.val.value);
-        throw("unexpected input");
-    }
-
-    this.route = new GmdpRoute();
-
-    for (primaryChild of directions.getChildren()) {
-        console.log(primaryChild);
-
-        if (primaryChild.val.id == 1 && primaryChild.val.type == 'm') {
-            console.log("primary waypoint located");
-        } else if (primaryChild.val.id == 3 && primaryChild.val.type == 'e') {
-            console.log("mode of transport located", primaryChild.val.value);
-            this.route.setTransportation(primaryChild.val.value);
+    //top node, expected to be 4m
+    var top = null;
+    for (var child of this.prBufRoot.getChildren()) {
+        if (child.val.id == 4 && child.val.type == 'm') {
+            top = child;
         }
+    }
+    if (top) {
+        var directions = null;
+        for (var child of top.getChildren()) {
+            if (child.val.id == 4 && child.val.type == 'm') {
+                directions = child;
+            }
+        }
+        if (directions) {
+            this.route = new GmdpRoute();
 
+            for (primaryChild of directions.getChildren()) {
+                if (primaryChild.val.id == 1 && primaryChild.val.type == 'm') {
+                    console.log("primary waypoint located", primaryChild);
+                    if (primaryChild.val.value > 0) {
 
-
-
+                } else if (primaryChild.val.id == 3 && primaryChild.val.type == 'e') {
+                    console.log("mode of transport located", primaryChild.val.value);
+                    this.route.setTransportation(primaryChild.val.value);
+                }
+            }
+        }
     }
 
 //    console.log("val", this.prBufRoot.getChildren()[0].val.value);
