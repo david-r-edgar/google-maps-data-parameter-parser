@@ -25,8 +25,11 @@ $(document).ready(function() {
 
         var gmdp = new Gmdp(urlToParse);
         console.log(gmdp.getMapType());
-        console.log(gmdp.getRoute());
-        console.log(gmdp.getRoute().getTransportation());
+        var route = gmdp.getRoute()
+        if (route) {
+            console.log(route);
+            console.log(route.getTransportation());
+        }
     });
 
     showTree(PrBufNode.create($("#inputURL")[0].value));

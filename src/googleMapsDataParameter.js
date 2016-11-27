@@ -167,15 +167,20 @@ var Gmdp = function(url) {
     this.prBufRoot = PrBufNode.create(url);
     this.mapType = "map";
 
-    //top node, expected to be 4m
+    //the main top node for routes is 4m
     var top = null;
     for (var child of this.prBufRoot.getChildren()) {
         if (child.id() == 3 && child.type() == 'm') {
             var mapTypeChildren = child.getChildren();
             if (mapTypeChildren && mapTypeChildren.length >= 1) {
                 if (mapTypeChildren[0].id() == 1 && mapTypeChildren[0].type() == 'e') {
-                    if (mapTypeChildren[0].value() == 3) {
-                        this.mapType = "earth";
+                    switch (mapTypeChildren[0].value()) {
+                        case '1':
+                            this.mapType = "streetview";
+                            break;
+                        case '3':
+                            this.mapType = "earth";
+                            break;
                     }
                 }
             }
