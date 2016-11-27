@@ -1,30 +1,49 @@
 
 
-//generic tree implementation
+/**
+ * Generic tree implementation
+ *
+ * This class represents any node in the tree.
+ */
 var Node = function(val) {
 
     this.val = val;
     this.children = [];
     this.parent = null;
 
+    /**
+     * Sets the parent node of this node.
+     */
     this.setParentNode = function(node) {
         this.parent = node;
         node.children[node.children.length] = this;
     }
 
+    /**
+     * Gets the parent node of this node.
+     */
     this.getParentNode = function() {
         return this.parent;
     }
 
+    /**
+     * Adds a child node of this node.
+     */
     this.addChild = function(node) {
         node.parent = this;
         this.children[this.children.length] = node;
     }
 
+    /**
+     * Gets the array of child nodes of this node.
+     */
     this.getChildren = function() {
         return this.children;
     }
 
+    /**
+     * Removes all the children of this node.
+     */
     this.removeChildren = function() {
         for (child of this.children) {
             child.parent = null;
@@ -32,6 +51,10 @@ var Node = function(val) {
         this.children = [];
     }
 
+    /**
+     * Recursively counts the number of all descendants, from children down, and
+     * returns the total number.
+     */
     this.getTotalDescendantCount = function() {
         var count = 0;
         for (child of this.children) {
@@ -41,8 +64,10 @@ var Node = function(val) {
     }
 }
 
-//Protocol Buffer implementation, which extends the functionality of Node
-//while specifically typing the stored value
+/**
+ * Protocol Buffer implementation, which extends the functionality of Node
+ * while specifically typing the stored value
+ */
 var PrBufNode = function(id, type, value) {
     this.val = {id, type, value}
     this.children = [];
@@ -56,8 +81,10 @@ PrBufNode.prototype.id = function() { return this.val.id; }
 PrBufNode.prototype.type = function() { return this.val.type; }
 PrBufNode.prototype.value = function() { return this.val.value; }
 
-//Compares the number of descendants with the value specified in the map element.
-//If all the children have not yet been added, we continue adding to this element.
+/**
+ * Compares the number of descendants with the value specified in the map element.
+ * If all the children have not yet been added, we continue adding to this element.
+ */
 PrBufNode.prototype.findLatestIncompleteNode = function() {
 
     //if it's a branch (map) node ('m') and has room,
@@ -72,7 +99,9 @@ PrBufNode.prototype.findLatestIncompleteNode = function() {
     }
 }
 
-//parses the input URL 'data' protocol buffer parameter into a tree
+/**
+ * Parses the input URL 'data' protocol buffer parameter into a tree
+ */
 PrBufNode.create = function(urlToParse) {
     var rootNode = null;
     var re = /data=!([^?&]+)/
@@ -130,6 +159,12 @@ GmdpRoute.prototype.pushWaypoint = function(wpt) {
     }
 }
 
+/**
+ * Sets the mode of transportation.
+ * If the passed parameter represents one of the integers normally used by Google Maps,
+ * it will be interpreted as the relevant transport mode, and set as a string:
+ * "car", "bike", "foot", "transit", "flight"
+ */
 GmdpRoute.prototype.setTransportation = function(transportation) {
     switch (transportation) {
         case '0':
@@ -153,6 +188,9 @@ GmdpRoute.prototype.setTransportation = function(transportation) {
     }
 }
 
+/**
+ * Returns the mode of transportation (if any) for the route.
+ */
 GmdpRoute.prototype.getTransportation = function() {
     return this.transportation;
 }
