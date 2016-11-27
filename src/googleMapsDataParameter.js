@@ -107,11 +107,10 @@ PrBufNode.create = function(urlToParse) {
  * but empty waypoint (these can exist in the data parameter, where
  * the coordinates have been specified in the URL path.
  */
-var GmdpWaypoint = function(lat, lng) {
-    if (arguments.length >= 2) {
-        this.lat = lat;
-        this.lng = lng;
-    }
+var GmdpWaypoint = function(lat, lng, primary) {
+    this.lat = lat;
+    this.lng = lng;
+    this.primary = primary ? true : false;
 }
 
 /**
@@ -126,33 +125,31 @@ var GmdpRoute = function() {
  * Pushes a GmdpWaypoint on to the end of this GmdpRoute.
  */
 GmdpRoute.prototype.pushWaypoint = function(wpt) {
-    if (wpt instanceof GmdpWaypoint || null === wpt) {
+    if (wpt instanceof GmdpWaypoint) {
         this.route.push(wpt);
     }
 }
 
-/**
- * Creates a new GmdpWaypoint from the provided latitude and longitude,
- * and pushes it on to the end of this GmdpRoute.
- */
-GmdpRoute.prototype.pushWaypointLatLng = function(lat, lng) {
-    var wpt = new GmdpWaypoint(lat, lng);
-    this.pushWaypoint(wpt);
-}
-
 GmdpRoute.prototype.setTransportation = function(transportation) {
-    if ('0' === transportation) {
-        this.transportation = "car";
-    } else if ('1' === transportation) {
-        this.transportation = "bike";
-    } else if ('2' === transportation) {
-        this.transportation = "foot";
-    } else if ('3' === transportation) {
-        this.transportation = "transit";
-    } else if ('4' === transportation) {
-        this.transportation = "flight";
-    } else {
-        this.transportation = transportation;
+    switch (transportation) {
+        case '0':
+            this.transportation = "car";
+            break;
+        case '1':
+            this.transportation = "bike";
+            break;
+        case '2':
+            this.transportation = "foot";
+            break;
+        case '3':
+            this.transportation = "transit";
+            break;
+        case '4':
+            this.transportation = "flight";
+            break;
+        default:
+            this.transportation = transportation;
+            break;
     }
 }
 
@@ -168,18 +165,28 @@ GmdpRoute.prototype.getTransportation = function() {
  */
 var Gmdp = function(url) {
     this.prBufRoot = PrBufNode.create(url);
+    this.mapType = "map";
 
     //top node, expected to be 4m
     var top = null;
     for (var child of this.prBufRoot.getChildren()) {
-        if (child.val.id == 4 && child.val.type == 'm') {
+        if (child.id() == 3 && child.type() == 'm') {
+            var mapTypeChildren = child.getChildren();
+            if (mapTypeChildren && mapTypeChildren.length >= 1) {
+                if (mapTypeChildren[0].id() == 1 && mapTypeChildren[0].type() == 'e') {
+                    if (mapTypeChildren[0].value() == 3) {
+                        this.mapType = "earth";
+                    }
+                }
+            }
+        } else if (child.id() == 4 && child.type() == 'm') {
             top = child;
         }
     }
     if (top) {
         var directions = null;
         for (var child of top.getChildren()) {
-            if (child.val.id == 4 && child.val.type == 'm') {
+            if (child.id() == 4 && child.type() == 'm') {
                 directions = child;
             }
         }
@@ -187,72 +194,62 @@ var Gmdp = function(url) {
             this.route = new GmdpRoute();
 
             for (primaryChild of directions.getChildren()) {
-                if (primaryChild.val.id == 1 && primaryChild.val.type == 'm') {
-                    console.log("primary waypoint located", primaryChild);
+                if (primaryChild.id() == 1 && primaryChild.type() == 'm') {
                     var addedPrimaryWpt = false;
                     var wptNodes = primaryChild.getChildren();
                     for (wptNode of wptNodes) {
-                        if (wptNode.val.id == 2) {
+                        if (wptNode.id() == 2) {
                             //this is the primary wpt, add coords
                             var coordNodes = wptNode.getChildren();
                             if (coordNodes &&
                                 coordNodes.length >= 2 &&
-                                coordNodes[0].val.id == 1 &&
-                                coordNodes[0].val.type == 'd' &&
-                                coordNodes[1].val.id == 2 &&
-                                coordNodes[1].val.type == 'd') {
-                                    this.route.pushWaypointLatLng(coordNodes[1].val.value,
-                                                                  coordNodes[0].val.value);
+                                coordNodes[0].id() == 1 &&
+                                coordNodes[0].type() == 'd' &&
+                                coordNodes[1].id() == 2 &&
+                                coordNodes[1].type() == 'd') {
+                                    this.route.pushWaypoint(
+                                        new GmdpWaypoint(coordNodes[1].value(),
+                                                         coordNodes[0].value(),
+                                                         true));
                             }
                             addedPrimaryWpt = true;
-                        } else if (wptNode.val.id == 3) {
+                        } else if (wptNode.id() == 3) {
                             //this is a secondary (unnamed) wpt
+                            //
                             //but first, if we haven't yet added the primary wpt,
                             //then the coordinates are apparently not specified,
                             //so we should add an empty wpt
                             if (!addedPrimaryWpt) {
-                                console.log("added empty primary wpt");
-                                this.route.pushWaypoint(null);
+                                this.route.pushWaypoint(new GmdpWaypoint(undefined, undefined, true));
                                 addedPrimaryWpt = true;
                             }
 
                             //now proceed with the secondary wpt itself
                             var secondaryWpts = wptNode.getChildren();
-                            console.log("secondaryWpts", secondaryWpts);
                             if (secondaryWpts && secondaryWpts.length > 1) {
                                 var coordNodes = secondaryWpts[0].getChildren();
                                 if (coordNodes &&
                                     coordNodes.length >= 2 &&
-                                    coordNodes[0].val.id == 1 &&
-                                    coordNodes[0].val.type == 'd' &&
-                                    coordNodes[1].val.id == 2 &&
-                                    coordNodes[1].val.type == 'd') {
-                                        this.route.pushWaypointLatLng(coordNodes[1].val.value,
-                                                                    coordNodes[0].val.value);
+                                    coordNodes[0].id() == 1 &&
+                                    coordNodes[0].type() == 'd' &&
+                                    coordNodes[1].id() == 2 &&
+                                    coordNodes[1].type() == 'd') {
+                                        this.route.pushWaypoint(
+                                            new GmdpWaypoint(coordNodes[1].value(),
+                                                             coordNodes[0].value(),
+                                                             false));
                                 }
                             }
                         }
 
 
                     }
-                } else if (primaryChild.val.id == 3 && primaryChild.val.type == 'e') {
-                    console.log("mode of transport located", primaryChild.val.value);
-                    this.route.setTransportation(primaryChild.val.value);
+                } else if (primaryChild.id() == 3 && primaryChild.type() == 'e') {
+                    this.route.setTransportation(primaryChild.value());
                 }
             }
         }
     }
-
-//    console.log("val", this.prBufRoot.getChildren()[0].val.value);
-
-
-
-    /*
-    var wpt = new GmdpWaypoint(1,2);
-    this.route.pushWaypoint(wpt);
-    this.route.pushWaypointLatLng(3,4);
-    this.route.pushWaypoint(new GmdpWaypoint());
-    */
 }
 
 /**
@@ -269,3 +266,9 @@ Gmdp.prototype.getRoute = function() {
     return this.route;
 }
 
+/**
+ * Returns the main map type ("map", "earth").
+ */
+Gmdp.prototype.getMapType = function() {
+    return this.mapType;
+}

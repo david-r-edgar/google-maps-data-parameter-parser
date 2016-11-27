@@ -24,7 +24,7 @@ $(document).ready(function() {
         setTimeout(showTree(PrBufNode.create(urlToParse)), 500);
 
         var gmdp = new Gmdp(urlToParse);
-        console.log(gmdp.getMapLayers());
+        console.log(gmdp.getMapType());
         console.log(gmdp.getRoute());
         console.log(gmdp.getRoute().getTransportation());
     });
