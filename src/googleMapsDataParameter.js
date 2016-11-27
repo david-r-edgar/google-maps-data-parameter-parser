@@ -126,7 +126,7 @@ var GmdpRoute = function() {
  * Pushes a GmdpWaypoint on to the end of this GmdpRoute.
  */
 GmdpRoute.prototype.pushWaypoint = function(wpt) {
-    if (wpt instanceof GmdpWaypoint) {
+    if (wpt instanceof GmdpWaypoint || null === wpt) {
         this.route.push(wpt);
     }
 }
@@ -189,8 +189,52 @@ var Gmdp = function(url) {
             for (primaryChild of directions.getChildren()) {
                 if (primaryChild.val.id == 1 && primaryChild.val.type == 'm') {
                     console.log("primary waypoint located", primaryChild);
-                    if (primaryChild.val.value > 0) {
+                    var addedPrimaryWpt = false;
+                    var wptNodes = primaryChild.getChildren();
+                    for (wptNode of wptNodes) {
+                        if (wptNode.val.id == 2) {
+                            //this is the primary wpt, add coords
+                            var coordNodes = wptNode.getChildren();
+                            if (coordNodes &&
+                                coordNodes.length >= 2 &&
+                                coordNodes[0].val.id == 1 &&
+                                coordNodes[0].val.type == 'd' &&
+                                coordNodes[1].val.id == 2 &&
+                                coordNodes[1].val.type == 'd') {
+                                    this.route.pushWaypointLatLng(coordNodes[1].val.value,
+                                                                  coordNodes[0].val.value);
+                            }
+                            addedPrimaryWpt = true;
+                        } else if (wptNode.val.id == 3) {
+                            //this is a secondary (unnamed) wpt
+                            //but first, if we haven't yet added the primary wpt,
+                            //then the coordinates are apparently not specified,
+                            //so we should add an empty wpt
+                            if (!addedPrimaryWpt) {
+                                console.log("added empty primary wpt");
+                                this.route.pushWaypoint(null);
+                                addedPrimaryWpt = true;
+                            }
 
+                            //now proceed with the secondary wpt itself
+                            var secondaryWpts = wptNode.getChildren();
+                            console.log("secondaryWpts", secondaryWpts);
+                            if (secondaryWpts && secondaryWpts.length > 1) {
+                                var coordNodes = secondaryWpts[0].getChildren();
+                                if (coordNodes &&
+                                    coordNodes.length >= 2 &&
+                                    coordNodes[0].val.id == 1 &&
+                                    coordNodes[0].val.type == 'd' &&
+                                    coordNodes[1].val.id == 2 &&
+                                    coordNodes[1].val.type == 'd') {
+                                        this.route.pushWaypointLatLng(coordNodes[1].val.value,
+                                                                    coordNodes[0].val.value);
+                                }
+                            }
+                        }
+
+
+                    }
                 } else if (primaryChild.val.id == 3 && primaryChild.val.type == 'e') {
                     console.log("mode of transport located", primaryChild.val.value);
                     this.route.setTransportation(primaryChild.val.value);
