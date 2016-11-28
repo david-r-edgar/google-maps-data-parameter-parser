@@ -20,15 +20,28 @@ var showTree = function(node, level=0) {
 
 var processUrl = function(urlToParse) {
 
-    showTree(PrBufNode.create(urlToParse));
+    $("#interpretedResult").text("");
 
     var gmdp = new Gmdp(urlToParse);
-    console.log(gmdp.getMapType());
+    $("#interpretedResult").append("<div>Map type: " + gmdp.getMapType() + "</div>");
     var route = gmdp.getRoute()
     if (route) {
+
         console.log(route);
-        console.log(route.getTransportation());
+        $("#interpretedResult").append("<div>Route: ");
+        for (wpt of route.getAllWaypoints()) {
+            if (wpt.primary) {
+                $("#interpretedResult").append("<span style='margin-left: 1.6em;'>" + wpt.lat + ", " + wpt.lng + "</span><br>");
+            } else {
+                $("#interpretedResult").append("<span style='margin-left: 2.4em;'>" + wpt.lat + ", " + wpt.lng + "</span><br>");
+            }
+        }
+        $("#interpretedResult").append("</div>");
+
+        $("#interpretedResult").append("<div>Method of transport: " + route.getTransportation() + "</div>");
     }
+
+    showTree(PrBufNode.create(urlToParse));
 }
 
 

@@ -196,6 +196,13 @@ GmdpRoute.prototype.getTransportation = function() {
 }
 
 /**
+ * Returns the list of all waypoints belonging to this route.
+ */
+GmdpRoute.prototype.getAllWaypoints = function() {
+    return this.route;
+}
+
+/**
  * Represents a google maps data parameter, constructed from the passed URL.
  *
  * Utility methods defined below allow the user to easily extract interesting
@@ -293,13 +300,6 @@ var Gmdp = function(url) {
             }
         }
     }
-}
-
-/**
- * Returns an ordered list of map layers shown on the current map.
- */
-Gmdp.prototype.getMapLayers = function() {
-    return this.prBufRoot;
 }
 
 /**
