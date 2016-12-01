@@ -22,26 +22,35 @@ var processUrl = function(urlToParse) {
 
     $("#interpretedResult").text("");
 
-    var gmdp = new Gmdp(urlToParse);
-    $("#interpretedResult").append("<div>Map type: " + gmdp.getMapType() + "</div>");
-    var route = gmdp.getRoute()
-    if (route) {
-
-        console.log(route);
-        $("#interpretedResult").append("<div>Route: ");
-        for (wpt of route.getAllWaypoints()) {
-            if (wpt.primary) {
-                $("#interpretedResult").append("<span style='margin-left: 1.6em;'>" + wpt.lat + ", " + wpt.lng + "</span><br>");
-            } else {
-                $("#interpretedResult").append("<span style='margin-left: 2.4em;'>" + wpt.lat + ", " + wpt.lng + "</span><br>");
-            }
+    try {
+        var gmdp = new Gmdp(urlToParse);
+        $("#interpretedResult").append("<div>Map type: " + gmdp.getMapType() + "</div>");
+        if (gmdp.getStreetviewURL()) {
+            $("#interpretedResult").append("<div>Image URL: " + gmdp.getStreetviewURL() + "</div>");
         }
-        $("#interpretedResult").append("</div>");
+        var route = gmdp.getRoute();
+        if (route) {
 
-        $("#interpretedResult").append("<div>Method of transport: " + route.getTransportation() + "</div>");
+            console.log(route);
+            $("#interpretedResult").append("<div>Route: ");
+            for (wpt of route.getAllWaypoints()) {
+                if (wpt.primary) {
+                    $("#interpretedResult").append("<span style='margin-left: 1.6em;'>" + wpt.lat + ", " + wpt.lng + "</span><br>");
+                } else {
+                    $("#interpretedResult").append("<span style='margin-left: 2.4em;'>" + wpt.lat + ", " + wpt.lng + "</span><br>");
+                }
+            }
+            $("#interpretedResult").append("</div>");
+
+            $("#interpretedResult").append("<div>Method of transport: " + route.getTransportation() + "</div>");
+        }
+
+        showTree(PrBufNode.create(urlToParse));
     }
-
-    showTree(PrBufNode.create(urlToParse));
+    catch (exc) {
+        console.log(exc.message);
+        $("#parseResult").html("");
+    }
 }
 
 
@@ -59,7 +68,10 @@ var setupTestUrlButtons = function() {
         "https://www.google.co.uk/maps/@51.6886014,5.3101255,3a,75y,86.06h,90t/data=!3m7!1e1!3m5!1sYJm3ADIz89LrIM9SGlYE2w!2e0!6s%2F%2Fgeo1.ggpht.com%2Fcbk%3Fpanoid%3DYJm3ADIz89LrIM9SGlYE2w%26output%3Dthumbnail%26cb_client%3Dmaps_sv.tactile.gps%26thumb%3D2%26w%3D203%26h%3D100%26yaw%3D303.07285%26pitch%3D0%26thumbfov%3D100!7i13312!8i6656?hl=en",
 
         //photosphere + route
-        "https://www.google.co.uk/maps/dir/Pskov,+Pskov+Oblast,+Russia/56.5490289,29.2219863/Riga,+Latvia/@51.6879915,5.3084641,3a,75y,271h,90t/data=!3m8!1e1!3m6!1s-VQLYGrkijOY%2FV48qLvLJE8I%2FAAAAAAAAQio%2Fy3aQW52lVKINdKOSVDKn9YJ-N4goWy3GgCJkC!2e4!3e11!6s%2F%2Flh5.googleusercontent.com%2F-VQLYGrkijOY%2FV48qLvLJE8I%2FAAAAAAAAQio%2Fy3aQW52lVKINdKOSVDKn9YJ-N4goWy3GgCJkC%2Fw203-h100-k-no-pi-2.9999962-ya40.49999-ro-0-fo100%2F!7i8704!8i4352!4m35!4m34!1m15!1m1!1s0x46c0193affb48223:0xea1f6715fb9517f!2m2!1d28.3344734!2d57.8166994!3m4!1m2!1d28.1957393!2d57.2104923!3s0x46c1b7e963d7a1d7:0x7d8ebf076b76f8e0!3m4!1m2!1d28.6231614!2d56.9862038!3s0x46c1a74677d87c41:0x73473ff8db1af97c!1m10!3m4!1m2!1d26.2770917!2d56.20202!3s0x46e82a3d06f5fd75:0xed607a2fefe77cbd!3m4!1m2!1d25.1664991!2d56.2745477!3s0x46e85913095506c3:0x8d29cdfcdede59bf!1m5!1m1!1s0x46eecfb0e5073ded:0x400cfcd68f2fe30!2m2!1d24.1051864!2d56.9496487!3e0?hl=en"
+        "https://www.google.co.uk/maps/dir/Pskov,+Pskov+Oblast,+Russia/56.5490289,29.2219863/Riga,+Latvia/@51.6879915,5.3084641,3a,75y,271h,90t/data=!3m8!1e1!3m6!1s-VQLYGrkijOY%2FV48qLvLJE8I%2FAAAAAAAAQio%2Fy3aQW52lVKINdKOSVDKn9YJ-N4goWy3GgCJkC!2e4!3e11!6s%2F%2Flh5.googleusercontent.com%2F-VQLYGrkijOY%2FV48qLvLJE8I%2FAAAAAAAAQio%2Fy3aQW52lVKINdKOSVDKn9YJ-N4goWy3GgCJkC%2Fw203-h100-k-no-pi-2.9999962-ya40.49999-ro-0-fo100%2F!7i8704!8i4352!4m35!4m34!1m15!1m1!1s0x46c0193affb48223:0xea1f6715fb9517f!2m2!1d28.3344734!2d57.8166994!3m4!1m2!1d28.1957393!2d57.2104923!3s0x46c1b7e963d7a1d7:0x7d8ebf076b76f8e0!3m4!1m2!1d28.6231614!2d56.9862038!3s0x46c1a74677d87c41:0x73473ff8db1af97c!1m10!3m4!1m2!1d26.2770917!2d56.20202!3s0x46e82a3d06f5fd75:0xed607a2fefe77cbd!3m4!1m2!1d25.1664991!2d56.2745477!3s0x46e85913095506c3:0x8d29cdfcdede59bf!1m5!1m1!1s0x46eecfb0e5073ded:0x400cfcd68f2fe30!2m2!1d24.1051864!2d56.9496487!3e0?hl=en",
+
+        //no data parameter
+        "https://www.google.co.uk/maps/@53.4528765,-2.1994247,14.5z?hl=en"
     ];
     for (testUrl in testUrls) {
         $("#testUrlButtons").append("<div><button id=\"testUrl" + testUrl + "\" value=\"" + encodeURI(testUrls[testUrl]) + "\">url" + testUrl + "</button></div>");

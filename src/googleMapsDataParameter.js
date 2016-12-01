@@ -104,7 +104,7 @@ PrBufNode.prototype.findLatestIncompleteNode = function() {
  */
 PrBufNode.create = function(urlToParse) {
     var rootNode = null;
-    var re = /data=!([^?&]+)/
+    var re = /data=!([^?&]+)/;
     var dataArray = urlToParse.match(re);
     if (dataArray && dataArray.length >= 1) {
         rootNode = new PrBufNode();
@@ -113,7 +113,7 @@ PrBufNode.create = function(urlToParse) {
         //deciding where to place it in the tree
         var elemArray = dataArray[1].split("!");
         for (var i=0; i < elemArray.length; i++) {
-            var elemRe = /^([0-9]+)([a-z])(.+)$/
+            var elemRe = /^([0-9]+)([a-z])(.+)$/;
             var elemValsArray = elemArray[i].match(elemRe);
             if (elemValsArray && elemValsArray.length > 3) {
                 var elemNode = new PrBufNode(elemValsArray[1], elemValsArray[2], elemValsArray[3]);
@@ -202,6 +202,19 @@ GmdpRoute.prototype.getAllWaypoints = function() {
     return this.route;
 }
 
+
+function GmdpException(message) {
+    this.message = message;
+    // Use V8's native method if available, otherwise fallback
+    if ("captureStackTrace" in Error)
+        Error.captureStackTrace(this, GmdpException);
+    else
+        this.stack = (new Error()).stack;
+}
+
+GmdpException.prototype = Object.create(Error.prototype);
+GmdpException.prototype.name = "GmdpException";
+
 /**
  * Represents a google maps data parameter, constructed from the passed URL.
  *
@@ -212,8 +225,14 @@ var Gmdp = function(url) {
     this.prBufRoot = PrBufNode.create(url);
     this.mapType = "map";
 
-    //the main top node for routes is 4m
-    var top = null;
+    if (this.prBufRoot == null) {
+        throw new GmdpException("no parsable data parameter");
+    }
+
+    //the main top node for routes is 4m; other urls (eg. streetview) feature 3m etc.
+    var routeTop = null;
+    var streetviewTop = null;
+
     for (var child of this.prBufRoot.getChildren()) {
         if (child.id() == 3 && child.type() == 'm') {
             var mapTypeChildren = child.getChildren();
@@ -222,6 +241,7 @@ var Gmdp = function(url) {
                     switch (mapTypeChildren[0].value()) {
                         case '1':
                             this.mapType = "streetview";
+                            streetviewTop = child;
                             break;
                         case '3':
                             this.mapType = "earth";
@@ -230,12 +250,12 @@ var Gmdp = function(url) {
                 }
             }
         } else if (child.id() == 4 && child.type() == 'm') {
-            top = child;
+            routeTop = child;
         }
     }
-    if (top) {
+    if (routeTop) {
         var directions = null;
-        for (var child of top.getChildren()) {
+        for (var child of routeTop.getChildren()) {
             if (child.id() == 4 && child.type() == 'm') {
                 directions = child;
             }
@@ -300,6 +320,19 @@ var Gmdp = function(url) {
             }
         }
     }
+    if (streetviewTop) {
+        var streetviewChildren = streetviewTop.getChildren();
+        for (streetviewChild of streetviewChildren) {
+            if (streetviewChild.id() == 3 && streetviewChild.type() == 'm') {
+                var svInfos = streetviewChild.getChildren();
+                for (svInfo of svInfos) {
+                    if (svInfo.id() == 6 && svInfo.type() == 's') {
+                        this.svURL = decodeURIComponent(svInfo.value());
+                    }
+                }
+            }
+        }
+    }
 }
 
 /**
@@ -314,4 +347,11 @@ Gmdp.prototype.getRoute = function() {
  */
 Gmdp.prototype.getMapType = function() {
     return this.mapType;
+}
+
+/**
+ * Returns the main map type ("map", "earth").
+ */
+Gmdp.prototype.getStreetviewURL = function() {
+    return this.svURL;
 }
