@@ -30,8 +30,6 @@ var processUrl = function(urlToParse) {
         }
         var route = gmdp.getRoute();
         if (route) {
-
-            console.log(route);
             $("#interpretedResult").append("<div>Route: ");
             for (wpt of route.getAllWaypoints()) {
                 if (wpt.primary) {
@@ -48,8 +46,7 @@ var processUrl = function(urlToParse) {
         showTree(PrBufNode.create(urlToParse));
     }
     catch (exc) {
-        console.log(exc.message);
-        $("#parseResult").html("");
+        $("#parseResult").html("<p style='color: red;'>Error: <span style='font-style: italic;'>" + exc.message + "</span></p>");
     }
 }
 

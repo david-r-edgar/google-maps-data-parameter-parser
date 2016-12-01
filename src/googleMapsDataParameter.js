@@ -226,7 +226,7 @@ var Gmdp = function(url) {
     this.mapType = "map";
 
     if (this.prBufRoot == null) {
-        throw new GmdpException("no parsable data parameter");
+        throw new GmdpException("no parsable data parameter found");
     }
 
     //the main top node for routes is 4m; other urls (eg. streetview) feature 3m etc.
@@ -326,6 +326,13 @@ var Gmdp = function(url) {
             if (streetviewChild.id() == 3 && streetviewChild.type() == 'm') {
                 var svInfos = streetviewChild.getChildren();
                 for (svInfo of svInfos) {
+                    if (svInfo.id() == 2 && svInfo.type() == 'e') {
+                        if (svInfo.value() == 4) {
+                            //!2e4!3e11 indicates a photosphere, rather than standard streetview
+                            //but the 3e11 doesn't seem to matter too much (?)
+                            this.mapType = "photosphere";
+                        }
+                    }
                     if (svInfo.id() == 6 && svInfo.type() == 's') {
                         this.svURL = decodeURIComponent(svInfo.value());
                     }
