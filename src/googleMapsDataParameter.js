@@ -265,39 +265,16 @@ var Gmdp = function(url) {
 
             for (primaryChild of directions.getChildren()) {
                 if (primaryChild.id() == 1 && primaryChild.type() == 'm') {
-                    var addedPrimaryWpt = false;
-                    var wptNodes = primaryChild.getChildren();
-                    for (wptNode of wptNodes) {
-                        if (wptNode.id() == 2) {
-                            //this is the primary wpt, add coords
-                            var coordNodes = wptNode.getChildren();
-                            if (coordNodes &&
-                                coordNodes.length >= 2 &&
-                                coordNodes[0].id() == 1 &&
-                                coordNodes[0].type() == 'd' &&
-                                coordNodes[1].id() == 2 &&
-                                coordNodes[1].type() == 'd') {
-                                    this.route.pushWaypoint(
-                                        new GmdpWaypoint(coordNodes[1].value(),
-                                                         coordNodes[0].value(),
-                                                         true));
-                            }
-                            addedPrimaryWpt = true;
-                        } else if (wptNode.id() == 3) {
-                            //this is a secondary (unnamed) wpt
-                            //
-                            //but first, if we haven't yet added the primary wpt,
-                            //then the coordinates are apparently not specified,
-                            //so we should add an empty wpt
-                            if (!addedPrimaryWpt) {
-                                this.route.pushWaypoint(new GmdpWaypoint(undefined, undefined, true));
-                                addedPrimaryWpt = true;
-                            }
-
-                            //now proceed with the secondary wpt itself
-                            var secondaryWpts = wptNode.getChildren();
-                            if (secondaryWpts && secondaryWpts.length > 1) {
-                                var coordNodes = secondaryWpts[0].getChildren();
+                    if (primaryChild.value() == 0) {
+                        this.route.pushWaypoint(new GmdpWaypoint(undefined, undefined, true));
+                    }
+                    else {
+                        var addedPrimaryWpt = false;
+                        var wptNodes = primaryChild.getChildren();
+                        for (wptNode of wptNodes) {
+                            if (wptNode.id() == 2) {
+                                //this is the primary wpt, add coords
+                                var coordNodes = wptNode.getChildren();
                                 if (coordNodes &&
                                     coordNodes.length >= 2 &&
                                     coordNodes[0].id() == 1 &&
@@ -306,13 +283,39 @@ var Gmdp = function(url) {
                                     coordNodes[1].type() == 'd') {
                                         this.route.pushWaypoint(
                                             new GmdpWaypoint(coordNodes[1].value(),
-                                                             coordNodes[0].value(),
-                                                             false));
+                                                            coordNodes[0].value(),
+                                                            true));
+                                }
+                                addedPrimaryWpt = true;
+                            } else if (wptNode.id() == 3) {
+                                //this is a secondary (unnamed) wpt
+                                //
+                                //but first, if we haven't yet added the primary wpt,
+                                //then the coordinates are apparently not specified,
+                                //so we should add an empty wpt
+                                if (!addedPrimaryWpt) {
+                                    this.route.pushWaypoint(new GmdpWaypoint(undefined, undefined, true));
+                                    addedPrimaryWpt = true;
+                                }
+
+                                //now proceed with the secondary wpt itself
+                                var secondaryWpts = wptNode.getChildren();
+                                if (secondaryWpts && secondaryWpts.length > 1) {
+                                    var coordNodes = secondaryWpts[0].getChildren();
+                                    if (coordNodes &&
+                                        coordNodes.length >= 2 &&
+                                        coordNodes[0].id() == 1 &&
+                                        coordNodes[0].type() == 'd' &&
+                                        coordNodes[1].id() == 2 &&
+                                        coordNodes[1].type() == 'd') {
+                                            this.route.pushWaypoint(
+                                                new GmdpWaypoint(coordNodes[1].value(),
+                                                                coordNodes[0].value(),
+                                                                false));
+                                    }
                                 }
                             }
                         }
-
-
                     }
                 } else if (primaryChild.id() == 3 && primaryChild.type() == 'e') {
                     this.route.setTransportation(primaryChild.value());
