@@ -87,7 +87,13 @@ var setupTestUrlButtons = function() {
     for (testUrlIndex in testUrlButtons) {
         var testUrl = testUrlButtons[testUrlIndex].url;
         var testUrlDescr = testUrlButtons[testUrlIndex].desc;
-        $("#testUrlButtons").append("<div><span><a href=\"" + testUrl + "\" target=\"_blank\">" + testUrlDescr + "</a></span><button id=\"testUrl" + testUrlIndex + "\" value=\"" + encodeURI(testUrl) + "\">url" + testUrlIndex + "</button></div>");
+        $("#testUrlButtons").append(
+
+            "<div><button id=\"testUrl" + testUrlIndex + "\" value=\"" + encodeURI(testUrl) + "\">parse</button> <span>"
+            + testUrlDescr + "</span> <a href=\"" + testUrl + "\" target=\"_blank\">(open)</a></div>"
+
+
+        );
         $("#testUrl" + testUrlIndex).click(function() {
             $("#inputURL").val($(this).val());
             processUrl(decodeURI($(this).val()));

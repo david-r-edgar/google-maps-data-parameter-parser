@@ -11,20 +11,68 @@
           font-family: Helvetica, Arial, Verdana, sans-serif;
           font-size: small;
         }
+
+        #testUrlButtons div
+        {
+            margin-bottom: 0.3em;
+        }
+
+        @media (min-width: 921px)
+        {
+            #inputURL
+            {
+                height: 9em;
+                width: 40em;
+            }
+        }
+
+        @media (min-width: 701px) and (max-width: 920px)
+        {
+            #inputURL
+            {
+                height: 11em;
+                width: 26em;
+            }
+        }
+
+        @media (max-width: 700px)
+        {
+            #inputURL
+            {
+                height: 14em;
+                width: 98%;
+            }
+            #testUrlButtons
+            {
+                display: none;
+            }
+        }
+
+        h4.input
+        {
+            color: #292;
+        }
+
+        h4.output
+        {
+            color: #989;
+        }
+
     </style>
   </head>
   <body>
+    <h2>Google Maps Data Parameter Parser test page</h2>
     <section id="testUrlButtons" style="float: right;">
-    <h4>Pre-defined<br>test URLs:</h4>
+    <h4 class=input>Pre-defined<br>test URLs:</h4>
     </section>
     <form>
-      <h4>Google maps URL:</h4>
-      <textarea rows=9 cols=80 id="inputURL"></textarea>
+      <h4 class=input>Google maps URL:</h4>
+      <textarea id="inputURL"></textarea>
     </form>
     <section id="resultSection">
-      <h4>Information extracted from data parameter:</h4>
+      <h4 class=output>Information extracted from data parameter:</h4>
       <div id="interpretedResult"></div>
-      <h4>Raw parsed data parameter:</h4>
+      <h4 class=output>Raw parsed data parameter:</h4>
       <div id="parseResult"></div>
     </section>
   </body>
