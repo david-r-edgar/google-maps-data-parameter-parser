@@ -2,6 +2,10 @@
 
 **A JavaScript parser for the Protocol Buffer implementation used for the 'data' parameter in google maps URLs.**
 
+## Demo test page
+
+See examples of what this library does at the [demonstration test page](http://loughrigg.org/gmdp/test/).
+
 ## Background
 
 Google Maps directions URLs typically look something like this:
