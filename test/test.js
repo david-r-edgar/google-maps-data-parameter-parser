@@ -48,6 +48,14 @@ var processUrl = function(urlToParse) {
     catch (exc) {
         $("#parseResult").html("<p style='color: red;'>Error: <span style='font-style: italic;'>" + exc.message + "</span></p>");
     }
+    finally {
+        if (urlToParse.length > 0 && urlToParse.trim().indexOf("http") == 0) {
+            $("#openThisURL").html("<a href='" + urlToParse.trim() + "' target='_blank'>open this URL</a>");
+        }
+        else {
+            $("#openThisURL").html("");
+        }
+    }
 }
 
 
@@ -57,7 +65,7 @@ var setupTestUrlButtons = function() {
     [
         {
             desc: "no data parameter",
-            url: "https://www.google.co.uk/maps/@53.4528765,-2.1994247,14.5z?hl=en"
+            url: "https://www.google.co.uk/maps/@50.938273,-1.3534897,10.75z?hl=en"
         },
         {
             desc: "basic",
