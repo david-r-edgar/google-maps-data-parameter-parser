@@ -6,69 +6,80 @@
     <script src="../src/googleMapsDataParameter.js"></script>
     <script src="test.js"></script>
     <style>
-        body
-        {
-          font-family: Helvetica, Arial, Verdana, sans-serif;
-          font-size: small;
-        }
+      body
+      {
+        font-family: Helvetica, Arial, Verdana, sans-serif;
+        font-size: small;
+      }
 
-        #testUrlButtons div
-        {
-            margin-bottom: 0.3em;
-        }
+      #testUrlButtons div
+      {
+        margin-bottom: 0.3em;
+      }
 
-        @media (min-width: 921px)
-        {
-            #inputURL
-            {
-                height: 9em;
-                width: 40em;
-            }
-        }
+      #resultSection
+      {
+        clear: both;
+      }
 
-        @media (min-width: 701px) and (max-width: 920px)
+      @media (min-width: 921px)
+      {
+        #inputURL
         {
-            #inputURL
-            {
-                height: 11em;
-                width: 26em;
-            }
+          height: 9em;
+          width: 40em;
         }
+      }
 
-        @media (max-width: 700px)
+      @media (min-width: 701px) and (max-width: 920px)
+      {
+        #inputURL
         {
-            #inputURL
-            {
-                height: 14em;
-                width: 98%;
-            }
-            #testUrlButtons
-            {
-                display: none;
-            }
+          height: 11em;
+          width: 26em;
         }
+      }
 
-        h4.input
+      @media (max-width: 700px)
+      {
+        #URLentry
         {
-            color: #292;
+          width: 100%;
         }
+        #inputURL
+        {
+          height: 14em;
+          width: 98%;
+        }
+        #testUrlButtons
+        {
+          display: none;
+        }
+      }
 
-        h4.output
-        {
-            color: #989;
-        }
+      h4.input
+      {
+        color: #292;
+      }
+
+      h4.output
+      {
+        color: #989;
+      }
 
     </style>
   </head>
   <body>
     <h2>Google Maps Data Parameter Parser test page</h2>
-    <section id="testUrlButtons" style="float: right;">
-    <h4 class=input>Pre-defined<br>test URLs:</h4>
+    <section id="URLentry" style="float: left;">
+      <form>
+        <h4 class=input>Google maps URL:</h4>
+        <textarea id="inputURL"></textarea>
+      </form>
     </section>
-    <form>
-      <h4 class=input>Google maps URL:</h4>
-      <textarea id="inputURL"></textarea>
-    </form>
+    <section id="testUrlButtons" style="float: right;">
+      <h4 class=input>Pre-defined test URLs:</h4>
+    </section>
     <section id="resultSection">
       <h4 class=output>Information extracted from data parameter:</h4>
       <div id="interpretedResult"></div>
