@@ -41,6 +41,35 @@ var processUrl = function(urlToParse) {
             $("#interpretedResult").append("</div>");
 
             $("#interpretedResult").append("<div>Method of transport: " + route.getTransportation() + "</div>");
+
+
+            if (route.avoidHighways) {
+                $("#interpretedResult").append("<div>Avoid highways: checked</div>");
+            }
+            if (route.avoidTolls) {
+                $("#interpretedResult").append("<div>Avoid tolls: checked</div>");
+            }
+            if (route.avoidFerries) {
+                $("#interpretedResult").append("<div>Avoid ferries: checked</div>");
+            }
+
+            if (route.getRoutePref()) {
+                $("#interpretedResult").append("<div>Route preference: " + route.getRoutePref() + "</div>");
+            }
+
+            if (undefined != route.arrDepTime) {
+                $("#interpretedResult").append("<div>" + route.getArrDepTimeType() + ": " + route.arrDepTime + "</div>");
+            }
+
+            if (route.getTransitModePref()) {
+                for (var transitModePref of route.getTransitModePref()) {
+                    $("#interpretedResult").append("<div>preferred transit mode: " + transitModePref + "</div>");
+                }
+            }
+
+            if (route.getUnit()) {
+                $("#interpretedResult").append("<div>Unit: " + route.getUnit() + "</div>");
+            }
         }
 
         showTree(PrBufNode.create(urlToParse));

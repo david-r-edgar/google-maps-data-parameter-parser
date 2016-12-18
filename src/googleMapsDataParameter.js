@@ -195,6 +195,84 @@ GmdpRoute.prototype.getTransportation = function() {
     return this.transportation;
 }
 
+GmdpRoute.prototype.setUnit = function(unit) {
+    switch (unit) {
+        case '0':
+            this.unit = "miles";
+            break;
+        case '1':
+            this.unit = "km";
+            break;
+    }
+}
+
+GmdpRoute.prototype.getUnit = function() {
+    return this.unit;
+}
+
+GmdpRoute.prototype.setRoutePref = function(routePref) {
+    switch (routePref) {
+        case '0':
+        case '1':
+            this.routePref = "best route";
+            break;
+        case '2':
+            this.routePref = "fewer transfers";
+            break;
+        case '3':
+            this.routePref = "less walking";
+            break;
+    }
+}
+
+GmdpRoute.prototype.getRoutePref = function() {
+    return this.routePref;
+}
+
+GmdpRoute.prototype.setArrDepTimeType = function(arrDepTimeType) {
+    switch (arrDepTimeType) {
+        case '0':
+            this.arrDepTimeType = "depart at";
+            break;
+        case '1':
+            this.arrDepTimeType = "arrive by";
+            break;
+        case '2':
+            this.arrDepTimeType = "last available";
+            break;
+    }
+}
+
+GmdpRoute.prototype.getArrDepTimeType = function() {
+    return this.arrDepTimeType;
+}
+
+GmdpRoute.prototype.addTransitModePref = function(transitModePref) {
+    //there can be multiple preferred transit modes, so we store them in an array
+    //we assume there will be no duplicate values, but it probably doesn't matter
+    //even if there are
+    switch (transitModePref) {
+        case '0':
+            this.transitModePref.push("bus");
+            break;
+        case '1':
+            this.transitModePref.push("subway");
+            break;
+        case '2':
+            this.transitModePref.push("train");
+            break;
+        case '3':
+            this.transitModePref.push("tram / light rail");
+            break;
+    }
+}
+
+GmdpRoute.prototype.getTransitModePref = function() {
+    return this.transitModePref;
+}
+
+
+
 /**
  * Returns the list of all waypoints belonging to this route.
  */
@@ -262,6 +340,10 @@ var Gmdp = function(url) {
         }
         if (directions) {
             this.route = new GmdpRoute();
+            this.route.arrDepTimeType = "leave now"; //default if no value is specified
+            this.route.avoidHighways = false;
+            this.route.avoidTolls = false;
+            this.route.avoidFerries = false;
 
             for (primaryChild of directions.getChildren()) {
                 if (primaryChild.id() == 1 && primaryChild.type() == 'm') {
@@ -317,8 +399,35 @@ var Gmdp = function(url) {
                             }
                         }
                     }
+                } else if (primaryChild.id() == 2 && primaryChild.type() == 'm') {
+                    var routeOptions = primaryChild.getChildren();
+                    for (routeOption of routeOptions) {
+                        if (routeOption.id() == 1 && routeOption.type() == 'b') {
+                            this.route.avoidHighways = true;
+                        }
+                        else if (routeOption.id() == 2 && routeOption.type() == 'b') {
+                            this.route.avoidTolls = true;
+                        }
+                        else if (routeOption.id() == 3 && routeOption.type() == 'b') {
+                            this.route.avoidFerries = true;
+                        }
+                        else if (routeOption.id() == 4 && routeOption.type() == 'e') {
+                            this.route.setRoutePref(routeOption.value());
+                        }
+                        else if (routeOption.id() == 5 && routeOption.type() == 'e') {
+                            this.route.addTransitModePref(routeOption.value());
+                        }
+                        else if (routeOption.id() == 6 && routeOption.type() == 'e') {
+                            this.route.setArrDepTimeType(routeOption.value());
+                        }
+                        if (routeOption.id() == 8 && routeOption.type() == 'j') {
+                            this.route.arrDepTime = routeOption.value(); //as a unix timestamp
+                        }
+                    }
                 } else if (primaryChild.id() == 3 && primaryChild.type() == 'e') {
                     this.route.setTransportation(primaryChild.value());
+                } else if (primaryChild.id() == 4 && primaryChild.type() == 'e') {
+                    this.route.setUnit(primaryChild.value());
                 }
             }
         }
