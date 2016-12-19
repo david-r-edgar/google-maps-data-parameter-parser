@@ -198,10 +198,10 @@ GmdpRoute.prototype.getTransportation = function() {
 GmdpRoute.prototype.setUnit = function(unit) {
     switch (unit) {
         case '0':
-            this.unit = "miles";
+            this.unit = "km";
             break;
         case '1':
-            this.unit = "km";
+            this.unit = "miles";
             break;
     }
 }
@@ -344,6 +344,7 @@ var Gmdp = function(url) {
             this.route.avoidHighways = false;
             this.route.avoidTolls = false;
             this.route.avoidFerries = false;
+            this.route.transitModePref = [];
 
             for (primaryChild of directions.getChildren()) {
                 if (primaryChild.id() == 1 && primaryChild.type() == 'm') {

@@ -53,22 +53,22 @@ var processUrl = function(urlToParse) {
                 $("#interpretedResult").append("<div>Avoid ferries: checked</div>");
             }
 
-            if (route.getRoutePref()) {
-                $("#interpretedResult").append("<div>Route preference: " + route.getRoutePref() + "</div>");
-            }
-
-            if (undefined != route.arrDepTime) {
-                $("#interpretedResult").append("<div>" + route.getArrDepTimeType() + ": " + route.arrDepTime + "</div>");
-            }
-
-            if (route.getTransitModePref()) {
-                for (var transitModePref of route.getTransitModePref()) {
-                    $("#interpretedResult").append("<div>preferred transit mode: " + transitModePref + "</div>");
-                }
-            }
 
             if (route.getUnit()) {
                 $("#interpretedResult").append("<div>Unit: " + route.getUnit() + "</div>");
+            }
+
+            if (undefined != route.arrDepTime) {
+                var date = new Date(route.arrDepTime * 1000);
+                $("#interpretedResult").append("<div>" + route.getArrDepTimeType() + ": " + date + "</div>");
+            }
+            if (route.getTransitModePref().length > 0) {
+                $("#interpretedResult").append("<div>Preferred transit modes: "
+                    + route.getTransitModePref().join(", ") + "</div>");
+            }
+
+            if (route.getRoutePref()) {
+                $("#interpretedResult").append("<div>Route preference: " + route.getRoutePref() + "</div>");
             }
         }
 
