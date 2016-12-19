@@ -93,7 +93,7 @@ var setupTestUrlButtons = function() {
     var testUrlButtons=
     [
         {
-            desc: "no data parameter",
+            desc: "no data parameter (error expected)",
             url: "https://www.google.co.uk/maps/@50.938273,-1.3534897,10.75z?hl=en"
         },
         {
