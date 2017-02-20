@@ -28,10 +28,17 @@ var processUrl = function(urlToParse) {
         if (gmdp.getStreetviewURL()) {
             $("#interpretedResult").append("<div>Image URL: " + gmdp.getStreetviewURL() + "</div>");
         }
+        var pins = gmdp.getPins();
+        if (pins) {
+            for (var pin of pins) {
+                $("#interpretedResult").append("<div>Pin: " + pin.lat + ", " + pin.lng + "</div>");
+            }
+        }
+
         var route = gmdp.getRoute();
         if (route) {
             $("#interpretedResult").append("<div>Route: ");
-            for (wpt of route.getAllWaypoints()) {
+            for (var wpt of route.getAllWaypoints()) {
                 if (wpt.primary) {
                     $("#interpretedResult").append("<span style='margin-left: 1.6em;'>" + wpt.lat + ", " + wpt.lng + "</span><br>");
                 } else {
@@ -126,6 +133,14 @@ var setupTestUrlButtons = function() {
         {
             desc: "route, last available with prefs",
             url: "https://www.google.co.uk/maps/dir/Versailles,+France/Cr%C3%A9teil,+France/@48.8053495,2.1524205,11z/data=!3m1!4b1!4m20!4m19!1m5!1m1!1s0x47e67db475f420bd:0x869e00ad0d844aba!2m2!1d2.130122!2d48.801408!1m5!1m1!1s0x47e60caf330272df:0x4573b9315445d467!2m2!1d2.455572!2d48.790367!2m4!4e2!5e0!5e3!6e2!3e3!4e1"
+        },
+        {
+            desc: "searched pin, then map dragged",
+            url: "https://www.google.co.uk/maps/place/V%C3%A4ster%C3%A5s,+Sweden/@59.3033626,15.0198179,10.5z/data=!4m5!3m4!1s0x465e4281455ba9a7:0xbc415db6e2654020!8m2!3d59.6099005!4d16.5448091?hl=en"
+        },
+        {
+            desc: "old search, new pin, then dragged",
+            url: "https://www.google.com/maps/place/353+01+Mari%C3%A1nsk%C3%A9+L%C3%A1zn%C4%9B,+Czechia/@50.8032781,12.8473104,11.25z/data=!4m12!1m6!3m5!1s0x47e66f8c0d8d3c2d:0xfa0f5b904d3dd76e!2sA%C3%A9roport+Paris+Beauvais+Till%C3%A9!8m2!3d49.4544677!4d2.1115111!3m4!1s0x47a07d671989abe5:0x675302af0e7968f3!8m2!3d49.9646934!4d12.7012253"
         }
     ];
     for (testUrlIndex in testUrlButtons) {

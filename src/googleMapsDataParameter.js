@@ -45,7 +45,7 @@ var Node = function(val) {
      * Removes all the children of this node.
      */
     this.removeChildren = function() {
-        for (child of this.children) {
+        for (var child of this.children) {
             child.parent = null;
         }
         this.children = [];
@@ -57,7 +57,7 @@ var Node = function(val) {
      */
     this.getTotalDescendantCount = function() {
         var count = 0;
-        for (child of this.children) {
+        for (var child of this.children) {
             count += child.getTotalDescendantCount();
         }
         return count + this.children.length;
@@ -126,6 +126,12 @@ PrBufNode.create = function(urlToParse) {
 }
 
 
+
+
+var GmdpPoint = function(lat, lng) {
+    this.lat = lat;
+    this.lng = lng;
+}
 
 
 
@@ -302,6 +308,7 @@ GmdpException.prototype.name = "GmdpException";
 var Gmdp = function(url) {
     this.prBufRoot = PrBufNode.create(url);
     this.mapType = "map";
+    this.pins = new Array();
 
     if (this.prBufRoot == null) {
         throw new GmdpException("no parsable data parameter found");
@@ -332,10 +339,28 @@ var Gmdp = function(url) {
         }
     }
     if (routeTop) {
+        var pinData = null;
         var directions = null;
         for (var child of routeTop.getChildren()) {
-            if (child.id() == 4 && child.type() == 'm') {
+            if (child.id() == 3 && child.type() == 'm') {
+                pinData = child;
+            } else if (child.id() == 4 && child.type() == 'm') {
                 directions = child;
+            }
+        }
+        if (pinData) {
+            for (var primaryChild of pinData.getChildren()) {
+                if (primaryChild.id() == 8 && primaryChild.type() == 'm') {
+                    var coordNodes = primaryChild.getChildren();
+                    if (coordNodes &&
+                        coordNodes.length >= 2 &&
+                        coordNodes[0].id() == 3 &&
+                        coordNodes[0].type() == 'd' &&
+                        coordNodes[1].id() == 4 &&
+                        coordNodes[1].type() == 'd') {
+                        this.pushPin(new GmdpPoint(coordNodes[0].value(), coordNodes[1].value()));
+                    }
+                }
             }
         }
         if (directions) {
@@ -346,7 +371,7 @@ var Gmdp = function(url) {
             this.route.avoidFerries = false;
             this.route.transitModePref = [];
 
-            for (primaryChild of directions.getChildren()) {
+            for (var primaryChild of directions.getChildren()) {
                 if (primaryChild.id() == 1 && primaryChild.type() == 'm') {
                     if (primaryChild.value() == 0) {
                         this.route.pushWaypoint(new GmdpWaypoint(undefined, undefined, true));
@@ -354,7 +379,7 @@ var Gmdp = function(url) {
                     else {
                         var addedPrimaryWpt = false;
                         var wptNodes = primaryChild.getChildren();
-                        for (wptNode of wptNodes) {
+                        for (var wptNode of wptNodes) {
                             if (wptNode.id() == 2) {
                                 //this is the primary wpt, add coords
                                 var coordNodes = wptNode.getChildren();
@@ -402,7 +427,7 @@ var Gmdp = function(url) {
                     }
                 } else if (primaryChild.id() == 2 && primaryChild.type() == 'm') {
                     var routeOptions = primaryChild.getChildren();
-                    for (routeOption of routeOptions) {
+                    for (var routeOption of routeOptions) {
                         if (routeOption.id() == 1 && routeOption.type() == 'b') {
                             this.route.avoidHighways = true;
                         }
@@ -435,10 +460,10 @@ var Gmdp = function(url) {
     }
     if (streetviewTop) {
         var streetviewChildren = streetviewTop.getChildren();
-        for (streetviewChild of streetviewChildren) {
+        for (var streetviewChild of streetviewChildren) {
             if (streetviewChild.id() == 3 && streetviewChild.type() == 'm') {
                 var svInfos = streetviewChild.getChildren();
-                for (svInfo of svInfos) {
+                for (var svInfo of svInfos) {
                     if (svInfo.id() == 2 && svInfo.type() == 'e') {
                         if (svInfo.value() == 4) {
                             //!2e4!3e11 indicates a photosphere, rather than standard streetview
@@ -452,6 +477,12 @@ var Gmdp = function(url) {
                 }
             }
         }
+    }
+}
+
+Gmdp.prototype.pushPin = function(wpt) {
+    if (wpt instanceof GmdpPoint) {
+        this.pins.push(wpt);
     }
 }
 
@@ -474,4 +505,11 @@ Gmdp.prototype.getMapType = function() {
  */
 Gmdp.prototype.getStreetviewURL = function() {
     return this.svURL;
+}
+
+/**
+ * Returns the pinned location.
+ */
+Gmdp.prototype.getPins = function() {
+    return this.pins;
 }
