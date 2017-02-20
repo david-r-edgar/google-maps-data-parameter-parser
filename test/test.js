@@ -35,9 +35,14 @@ var processUrl = function(urlToParse) {
             }
         }
 
+        var oldRoute = false;
         var route = gmdp.getRoute();
+        if (!route) {
+            route = gmdp.getOldRoute();
+            oldRoute = true;
+        }
         if (route) {
-            $("#interpretedResult").append("<div>Route: ");
+            $("#interpretedResult").append(oldRoute ? "<div>Old route: " : "<div>Route: ");
             for (var wpt of route.getAllWaypoints()) {
                 if (wpt.primary) {
                     $("#interpretedResult").append("<span style='margin-left: 1.6em;'>" + wpt.lat + ", " + wpt.lng + "</span><br>");

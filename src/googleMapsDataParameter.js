@@ -341,6 +341,7 @@ var Gmdp = function(url) {
     if (routeTop) {
         var pinData = null;
         var directions = null;
+        var oldDirections = null;
         for (var child of routeTop.getChildren()) {
             if (child.id() == 3 && child.type() == 'm') {
                 pinData = child;
@@ -348,7 +349,7 @@ var Gmdp = function(url) {
                 directions = child;
             } else if (child.id() == 1 && child.type() == 'm') {
                 //1m_ indicates the old route, pin, or search location
-                //AFAIK there can't be both a current route and an old route, for example
+                //it seems that there can't be both a current route and an old route, for example
                 //so we can treat its children as regular pins or directions
                 for (var grandchild of child.getChildren()) {
                     if (grandchild.id() == 3 && grandchild.type() == 'm') {
@@ -357,121 +358,23 @@ var Gmdp = function(url) {
                         }
                     } else if (grandchild.id() == 4 && grandchild.type() == 'm') {
                         if (!directions) {
-                            directions = grandchild;
+                            oldDirections = grandchild;
                         }
                     }
                 }
             }
         }
-        if (pinData) {
-            for (var primaryChild of pinData.getChildren()) {
-                if (primaryChild.id() == 8 && primaryChild.type() == 'm') {
-                    var coordNodes = primaryChild.getChildren();
-                    if (coordNodes &&
-                        coordNodes.length >= 2 &&
-                        coordNodes[0].id() == 3 &&
-                        coordNodes[0].type() == 'd' &&
-                        coordNodes[1].id() == 4 &&
-                        coordNodes[1].type() == 'd') {
-                        this.pushPin(new GmdpPoint(coordNodes[0].value(), coordNodes[1].value()));
-                    }
-                }
-            }
+    }
+    if (pinData) {
+        var pinPoint = this.parsePin(pinData);
+        if (pinPoint) {
+            this.pushPin(pinPoint);
         }
-        if (directions) {
-            this.route = new GmdpRoute();
-            this.route.arrDepTimeType = "leave now"; //default if no value is specified
-            this.route.avoidHighways = false;
-            this.route.avoidTolls = false;
-            this.route.avoidFerries = false;
-            this.route.transitModePref = [];
-
-            for (var primaryChild of directions.getChildren()) {
-                if (primaryChild.id() == 1 && primaryChild.type() == 'm') {
-                    if (primaryChild.value() == 0) {
-                        this.route.pushWaypoint(new GmdpWaypoint(undefined, undefined, true));
-                    }
-                    else {
-                        var addedPrimaryWpt = false;
-                        var wptNodes = primaryChild.getChildren();
-                        for (var wptNode of wptNodes) {
-                            if (wptNode.id() == 2) {
-                                //this is the primary wpt, add coords
-                                var coordNodes = wptNode.getChildren();
-                                if (coordNodes &&
-                                    coordNodes.length >= 2 &&
-                                    coordNodes[0].id() == 1 &&
-                                    coordNodes[0].type() == 'd' &&
-                                    coordNodes[1].id() == 2 &&
-                                    coordNodes[1].type() == 'd') {
-                                        this.route.pushWaypoint(
-                                            new GmdpWaypoint(coordNodes[1].value(),
-                                                            coordNodes[0].value(),
-                                                            true));
-                                }
-                                addedPrimaryWpt = true;
-                            } else if (wptNode.id() == 3) {
-                                //this is a secondary (unnamed) wpt
-                                //
-                                //but first, if we haven't yet added the primary wpt,
-                                //then the coordinates are apparently not specified,
-                                //so we should add an empty wpt
-                                if (!addedPrimaryWpt) {
-                                    this.route.pushWaypoint(new GmdpWaypoint(undefined, undefined, true));
-                                    addedPrimaryWpt = true;
-                                }
-
-                                //now proceed with the secondary wpt itself
-                                var secondaryWpts = wptNode.getChildren();
-                                if (secondaryWpts && secondaryWpts.length > 1) {
-                                    var coordNodes = secondaryWpts[0].getChildren();
-                                    if (coordNodes &&
-                                        coordNodes.length >= 2 &&
-                                        coordNodes[0].id() == 1 &&
-                                        coordNodes[0].type() == 'd' &&
-                                        coordNodes[1].id() == 2 &&
-                                        coordNodes[1].type() == 'd') {
-                                            this.route.pushWaypoint(
-                                                new GmdpWaypoint(coordNodes[1].value(),
-                                                                coordNodes[0].value(),
-                                                                false));
-                                    }
-                                }
-                            }
-                        }
-                    }
-                } else if (primaryChild.id() == 2 && primaryChild.type() == 'm') {
-                    var routeOptions = primaryChild.getChildren();
-                    for (var routeOption of routeOptions) {
-                        if (routeOption.id() == 1 && routeOption.type() == 'b') {
-                            this.route.avoidHighways = true;
-                        }
-                        else if (routeOption.id() == 2 && routeOption.type() == 'b') {
-                            this.route.avoidTolls = true;
-                        }
-                        else if (routeOption.id() == 3 && routeOption.type() == 'b') {
-                            this.route.avoidFerries = true;
-                        }
-                        else if (routeOption.id() == 4 && routeOption.type() == 'e') {
-                            this.route.setRoutePref(routeOption.value());
-                        }
-                        else if (routeOption.id() == 5 && routeOption.type() == 'e') {
-                            this.route.addTransitModePref(routeOption.value());
-                        }
-                        else if (routeOption.id() == 6 && routeOption.type() == 'e') {
-                            this.route.setArrDepTimeType(routeOption.value());
-                        }
-                        if (routeOption.id() == 8 && routeOption.type() == 'j') {
-                            this.route.arrDepTime = routeOption.value(); //as a unix timestamp
-                        }
-                    }
-                } else if (primaryChild.id() == 3 && primaryChild.type() == 'e') {
-                    this.route.setTransportation(primaryChild.value());
-                } else if (primaryChild.id() == 4 && primaryChild.type() == 'e') {
-                    this.route.setUnit(primaryChild.value());
-                }
-            }
-        }
+    }
+    if (directions) {
+        this.route = this.parseRoute(directions);
+    } else if (oldDirections) {
+        this.oldRoute = this.parseRoute(oldDirections);
     }
     if (streetviewTop) {
         var streetviewChildren = streetviewTop.getChildren();
@@ -495,6 +398,124 @@ var Gmdp = function(url) {
     }
 }
 
+
+Gmdp.prototype.parsePin = function(pinNode) {
+    var pinPoint = null;
+    for (var primaryChild of pinNode.getChildren()) {
+        if (primaryChild.id() == 8 && primaryChild.type() == 'm') {
+            var coordNodes = primaryChild.getChildren();
+            if (coordNodes &&
+                coordNodes.length >= 2 &&
+                coordNodes[0].id() == 3 &&
+                coordNodes[0].type() == 'd' &&
+                coordNodes[1].id() == 4 &&
+                coordNodes[1].type() == 'd') {
+                pinPoint = new GmdpPoint(coordNodes[0].value(), coordNodes[1].value());
+            }
+        }
+    }
+    return pinPoint;
+}
+
+Gmdp.prototype.parseRoute = function(directionsNode) {
+
+    var route = new GmdpRoute();
+    route.arrDepTimeType = "leave now"; //default if no value is specified
+    route.avoidHighways = false;
+    route.avoidTolls = false;
+    route.avoidFerries = false;
+    route.transitModePref = [];
+
+    for (var primaryChild of directionsNode.getChildren()) {
+        if (primaryChild.id() == 1 && primaryChild.type() == 'm') {
+            if (primaryChild.value() == 0) {
+                route.pushWaypoint(new GmdpWaypoint(undefined, undefined, true));
+            }
+            else {
+                var addedPrimaryWpt = false;
+                var wptNodes = primaryChild.getChildren();
+                for (var wptNode of wptNodes) {
+                    if (wptNode.id() == 2) {
+                        //this is the primary wpt, add coords
+                        var coordNodes = wptNode.getChildren();
+                        if (coordNodes &&
+                            coordNodes.length >= 2 &&
+                            coordNodes[0].id() == 1 &&
+                            coordNodes[0].type() == 'd' &&
+                            coordNodes[1].id() == 2 &&
+                            coordNodes[1].type() == 'd') {
+                                route.pushWaypoint(
+                                    new GmdpWaypoint(coordNodes[1].value(),
+                                                    coordNodes[0].value(),
+                                                    true));
+                        }
+                        addedPrimaryWpt = true;
+                    } else if (wptNode.id() == 3) {
+                        //this is a secondary (unnamed) wpt
+                        //
+                        //but first, if we haven't yet added the primary wpt,
+                        //then the coordinates are apparently not specified,
+                        //so we should add an empty wpt
+                        if (!addedPrimaryWpt) {
+                            route.pushWaypoint(new GmdpWaypoint(undefined, undefined, true));
+                            addedPrimaryWpt = true;
+                        }
+
+                        //now proceed with the secondary wpt itself
+                        var secondaryWpts = wptNode.getChildren();
+                        if (secondaryWpts && secondaryWpts.length > 1) {
+                            var coordNodes = secondaryWpts[0].getChildren();
+                            if (coordNodes &&
+                                coordNodes.length >= 2 &&
+                                coordNodes[0].id() == 1 &&
+                                coordNodes[0].type() == 'd' &&
+                                coordNodes[1].id() == 2 &&
+                                coordNodes[1].type() == 'd') {
+                                    route.pushWaypoint(
+                                        new GmdpWaypoint(coordNodes[1].value(),
+                                                        coordNodes[0].value(),
+                                                        false));
+                            }
+                        }
+                    }
+                }
+            }
+        } else if (primaryChild.id() == 2 && primaryChild.type() == 'm') {
+            var routeOptions = primaryChild.getChildren();
+            for (var routeOption of routeOptions) {
+                if (routeOption.id() == 1 && routeOption.type() == 'b') {
+                    route.avoidHighways = true;
+                }
+                else if (routeOption.id() == 2 && routeOption.type() == 'b') {
+                    route.avoidTolls = true;
+                }
+                else if (routeOption.id() == 3 && routeOption.type() == 'b') {
+                    route.avoidFerries = true;
+                }
+                else if (routeOption.id() == 4 && routeOption.type() == 'e') {
+                    route.setRoutePref(routeOption.value());
+                }
+                else if (routeOption.id() == 5 && routeOption.type() == 'e') {
+                    route.addTransitModePref(routeOption.value());
+                }
+                else if (routeOption.id() == 6 && routeOption.type() == 'e') {
+                    route.setArrDepTimeType(routeOption.value());
+                }
+                if (routeOption.id() == 8 && routeOption.type() == 'j') {
+                    route.arrDepTime = routeOption.value(); //as a unix timestamp
+                }
+            }
+        } else if (primaryChild.id() == 3 && primaryChild.type() == 'e') {
+            route.setTransportation(primaryChild.value());
+        } else if (primaryChild.id() == 4 && primaryChild.type() == 'e') {
+            route.setUnit(primaryChild.value());
+        }
+    }
+
+    return route;
+}
+
+
 Gmdp.prototype.pushPin = function(wpt) {
     if (wpt instanceof GmdpPoint) {
         this.pins.push(wpt);
@@ -506,6 +527,13 @@ Gmdp.prototype.pushPin = function(wpt) {
  */
 Gmdp.prototype.getRoute = function() {
     return this.route;
+}
+
+/**
+ * Returns the route defined by this data parameter.
+ */
+Gmdp.prototype.getOldRoute = function() {
+    return this.oldRoute;
 }
 
 /**
