@@ -346,6 +346,21 @@ var Gmdp = function(url) {
                 pinData = child;
             } else if (child.id() == 4 && child.type() == 'm') {
                 directions = child;
+            } else if (child.id() == 1 && child.type() == 'm') {
+                //1m_ indicates the old route, pin, or search location
+                //AFAIK there can't be both a current route and an old route, for example
+                //so we can treat its children as regular pins or directions
+                for (var grandchild of child.getChildren()) {
+                    if (grandchild.id() == 3 && grandchild.type() == 'm') {
+                        if (!pinData) {
+                            pinData = grandchild;
+                        }
+                    } else if (grandchild.id() == 4 && grandchild.type() == 'm') {
+                        if (!directions) {
+                            directions = grandchild;
+                        }
+                    }
+                }
             }
         }
         if (pinData) {

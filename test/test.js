@@ -141,6 +141,10 @@ var setupTestUrlButtons = function() {
         {
             desc: "old search, new pin, then dragged",
             url: "https://www.google.com/maps/place/353+01+Mari%C3%A1nsk%C3%A9+L%C3%A1zn%C4%9B,+Czechia/@50.8032781,12.8473104,11.25z/data=!4m12!1m6!3m5!1s0x47e66f8c0d8d3c2d:0xfa0f5b904d3dd76e!2sA%C3%A9roport+Paris+Beauvais+Till%C3%A9!8m2!3d49.4544677!4d2.1115111!3m4!1s0x47a07d671989abe5:0x675302af0e7968f3!8m2!3d49.9646934!4d12.7012253"
+        },
+        {
+            desc: "route + pin",
+            url: "https://www.google.co.uk/maps/place/Leominster/@52.0174985,-2.872613,8.83z/data=!4m21!1m15!4m14!1m6!1m2!1s0x486e02d434ec53f5:0x143406db6586670e!2sCardiff!2m2!1d-3.17909!2d51.481581!1m6!1m2!1s0x4870942d1b417173:0xca81fef0aeee7998!2sBirmingham!2m2!1d-1.890401!2d52.486243!3m4!1s0x48702352cc0a39ad:0x843d74dfaa6cf887!8m2!3d52.2256964!4d-2.7424622?hl=en"
         }
     ];
     for (testUrlIndex in testUrlButtons) {
