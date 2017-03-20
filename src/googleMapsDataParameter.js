@@ -106,6 +106,10 @@ PrBufNode.create = function(urlToParse) {
     var rootNode = null;
     var re = /data=!([^?&]+)/;
     var dataArray = urlToParse.match(re);
+    if (!dataArray || dataArray.length < 1) {
+        re = /mv:!([^?&]+)/;
+        dataArray = urlToParse.match(re);
+    }
     if (dataArray && dataArray.length >= 1) {
         rootNode = new PrBufNode();
         var workingNode = rootNode;
