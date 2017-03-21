@@ -323,7 +323,10 @@ var Gmdp = function(url) {
     var streetviewTop = null;
 
     for (var child of this.prBufRoot.getChildren()) {
-        if (child.id() == 3 && child.type() == 'm') {
+        if (child.id() == 1 && child.type() == 'm') {
+            var localSearchMapChildren = child.getChildren();
+        }
+        else if (child.id() == 3 && child.type() == 'm') {
             var mapTypeChildren = child.getChildren();
             if (mapTypeChildren && mapTypeChildren.length >= 1) {
                 if (mapTypeChildren[0].id() == 1 && mapTypeChildren[0].type() == 'e') {
@@ -397,6 +400,32 @@ var Gmdp = function(url) {
                         this.svURL = decodeURIComponent(svInfo.value());
                     }
                 }
+            }
+        }
+    }
+    if (localSearchMapChildren && localSearchMapChildren.length >= 1) {
+        var lsmLat = undefined;
+        var lsmLng = undefined;
+        var lsmResolution = undefined;
+        for (var field of localSearchMapChildren) {
+            if (field.type() == 'd') {
+                switch (field.id()) {
+                    case '1':
+                        lsmResolution = field.value();
+                        break;
+                    case '2':
+                        lsmLng = field.value();
+                        break;
+                    case '3':
+                        lsmLat = field.value();
+                        break;
+                }
+            }
+        }
+        if (lsmLat !== undefined && lsmLng !== undefined && lsmResolution !== undefined) {
+            this.localSearchMap = {
+                centre: new GmdpPoint(lsmLat, lsmLng),
+                resolution: lsmResolution
             }
         }
     }
@@ -559,4 +588,11 @@ Gmdp.prototype.getStreetviewURL = function() {
  */
 Gmdp.prototype.getPins = function() {
     return this.pins;
+}
+
+/**
+ * Returns local search map data.
+ */
+Gmdp.prototype.getLocalSearchMap = function() {
+    return this.localSearchMap;
 }

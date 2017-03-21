@@ -34,6 +34,12 @@ var processUrl = function(urlToParse) {
                 $("#interpretedResult").append("<div>Pin: " + pin.lat + ", " + pin.lng + "</div>");
             }
         }
+        var localSearchMap = gmdp.getLocalSearchMap();
+        if (localSearchMap) {
+            $("#interpretedResult").append("<div>Local search map.</div>");
+            $("#interpretedResult").append("Centre: " + localSearchMap.centre.lat + ", " + localSearchMap.centre.lng + "</div>");
+            $("#interpretedResult").append("<div>Resolution: " + localSearchMap.resolution + "</div>");
+        }
 
         var oldRoute = false;
         var route = gmdp.getRoute();
@@ -150,6 +156,18 @@ var setupTestUrlButtons = function() {
         {
             desc: "route + pin",
             url: "https://www.google.co.uk/maps/place/Leominster/@52.0174985,-2.872613,8.83z/data=!4m21!1m15!4m14!1m6!1m2!1s0x486e02d434ec53f5:0x143406db6586670e!2sCardiff!2m2!1d-3.17909!2d51.481581!1m6!1m2!1s0x4870942d1b417173:0xca81fef0aeee7998!2sBirmingham!2m2!1d-1.890401!2d52.486243!3m4!1s0x48702352cc0a39ad:0x843d74dfaa6cf887!8m2!3d52.2256964!4d-2.7424622?hl=en"
+        },
+        {
+            desc: "local search map, initial (error expected)",
+            url: "https://www.google.co.uk/search?client=ubuntu&espv=2&biw=1194&bih=852&q=gloucester+historic&npsic=0&rflfq=1&rlha=0&rllag=51863865,-2250128,124&tbm=lcl&ved=0ahUKEwiavNXPr-HSAhVLJcAKHfllCoMQtgMIHA&tbs=lf_msr:-1,lf_od:-1,lf_oh:-1,lf_pqs:EAE,lf:1,lf_ui:1&rldoc=1"
+        },
+        {
+            desc: "local search map ('mv:'), moved",
+            url: "https://www.google.co.uk/search?client=ubuntu&espv=2&biw=1194&bih=852&q=gloucester+historic&npsic=0&rflfq=1&rlha=0&rllag=51863865,-2250128,124&tbm=lcl&ved=0ahUKEwiavNXPr-HSAhVLJcAKHfllCoMQtgMIHA&tbs=lf_msr:-1,lf_od:-1,lf_oh:-1,lf_pqs:EAE,lf:1,lf_ui:1&rldoc=1#rlfi=hd:;si:;mv:!1m3!1d18143.39399274318!2d-2.250704480395484!3d51.868243325313784!3m2!1i774!2i707!4f13.1;tbs:lf_msr:-1,lf_od:-1,lf_oh:-1,lf_pqs:EAE,lf:1,lf_ui:1"
+        },
+        {
+            desc: "local search map ('mv:'), alternative (no rllag)",
+            url: "https://www.google.co.uk/webhp?sourceid=chrome-instant&ion=1&espv=2&ie=UTF-8&client=ubuntu#tbm=lcl&q=manchester+historic&*&rlfi=hd:;si:;mv:!1m3!1d139833.7003736632!2d-2.2531448280273025!3d53.496781691665355!3m2!1i759!2i707!4f13.1"
         }
     ];
     for (testUrlIndex in testUrlButtons) {
