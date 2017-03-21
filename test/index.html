@@ -33,6 +33,7 @@
       #resultSection
       {
         clear: both;
+        word-wrap: break-word;
       }
 
       @media (min-width: 921px)
@@ -40,7 +41,7 @@
         #inputURL
         {
           height: 12em;
-          width: 44em;
+          width: 100%;
         }
       }
 
@@ -49,7 +50,6 @@
         #inputURL
         {
           height: 14em;
-          width: 28em;
         }
       }
 
@@ -62,7 +62,6 @@
         #inputURL
         {
           height: 14em;
-          width: 98%;
         }
         #testUrlButtons
         {
@@ -90,7 +89,7 @@
     <div class="main-container">
         <div id="repolink"><a href="https://github.com/david-r-edgar/google-maps-data-parameter-parser">source on GitHub</a></div>
         <h2>Google Maps Data Parameter Parser test page</h2>
-        <div class="col-sm-8">
+        <div class="col-sm-7">
             <section id="URLentry">
                 <form>
                     <h4 class=input>Google maps URL:</h4>
@@ -105,7 +104,7 @@
                 <div id="parseResult"></div>
             </section>
         </div>
-        <div class="col-sm-4">
+        <div class="col-sm-5">
             <section id="testUrlButtons">
                 <h4 class=input>Pre-defined test URLs:</h4>
             </section>
