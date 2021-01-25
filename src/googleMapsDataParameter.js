@@ -510,6 +510,9 @@ Gmdp.prototype.parseRoute = function(directionsNode) {
                                                         false));
                             }
                         }
+                    } else if (wptNode.id() == 4 && wptNode.type() == 'e') {
+                        route.pushWaypoint(new GmdpWaypoint(undefined, undefined, true));
+                        addedPrimaryWpt = true;
                     }
                 }
             }

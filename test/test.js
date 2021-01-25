@@ -168,6 +168,10 @@ var setupTestUrlButtons = function() {
         {
             desc: "local search map ('mv:'), alternative (no rllag)",
             url: "https://www.google.co.uk/webhp?sourceid=chrome-instant&ion=1&espv=2&ie=UTF-8&client=ubuntu#tbm=lcl&q=manchester+historic&*&rlfi=hd:;si:;mv:!1m3!1d139833.7003736632!2d-2.2531448280273025!3d53.496781691665355!3m2!1i759!2i707!4f13.1"
+        },
+        {
+            desc: "route with waypoint with no coordinates",
+            url: "https://www.google.com.au/maps/dir/-27.1111111,152.1111111/5+Meilland+Ct,+Eatons+Hill+QLD+4037/@-27.4273895,152.8739712,11z/data=!4m11!4m10!1m1!4e1!1m5!1m1!1s0x6b93fdbf3dfd303d:0xd5a53aa01525f506!2m2!1d152.9460143!2d-27.3346106!3e0!5i1"
         }
     ];
     for (testUrlIndex in testUrlButtons) {
